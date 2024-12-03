@@ -11,7 +11,7 @@ android {
 
 	defaultConfig {
 		applicationId "com.serenegiant.audiovideoplayersample"
-		minSdkVersion 18
+		minSdkVersion 21
 		targetSdkVersion versionTarget
 		versionCode versionCodeNum
 		versionName versionNameString
@@ -26,11 +26,17 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 		}
     }
+
+    namespace "com.serenegiant.audiovideoplayersample"
 }
 
 dependencies {
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+	//noinspection GradleDependency
 	implementation "com.google.android.material:material:${androidXMateril}"
+	//noinspection GradleDependency
 	implementation "androidx.appcompat:appcompat:${androidXAppCompatVersion}"
+	implementation 'androidx.test:monitor:1.7.2'
+	implementation 'androidx.test:core:1.6.1'
 }

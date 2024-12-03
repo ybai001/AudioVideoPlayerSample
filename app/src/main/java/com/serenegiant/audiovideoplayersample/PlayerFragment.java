@@ -44,153 +44,156 @@ import android.widget.ImageButton;
 
 @SuppressWarnings("unused")
 public class PlayerFragment extends Fragment {
-	private static final boolean DEBUG = true;	// TODO set false on release
-	private static final String TAG = "PlayerFragment";
-	
-	/**
-	 * for camera preview display
-	 */
-	private PlayerTextureView mPlayerView;	//	private PlayerGLView mPlayerView;
-	/**
-	 * button for start/stop recording
-	 */
-	private ImageButton mPlayerButton;
+    private static final boolean DEBUG = true;	// TODO set false on release
+    private static final String TAG = "PlayerFragment";
+
+    /**
+     * for camera preview display
+     */
+    private PlayerTextureView mPlayerView;	//	private PlayerGLView mPlayerView;
+    /**
+     * button for start/stop recording
+     */
+    private ImageButton mPlayerButton;
 
 //	private MediaVideoPlayer mPlayer;
-	private MediaMoviePlayer mPlayer;
+    private MediaMoviePlayer mPlayer;
 
-	public PlayerFragment() {
-		// need default constructor
-		setRetainInstance(true);
-	}
+    public PlayerFragment() {
+        // need default constructor
+        setRetainInstance(true);
+    }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-		mPlayerView = (PlayerTextureView)rootView.findViewById(R.id.player_view);
-		mPlayerView.setAspectRatio(640 / 480.f);
-		mPlayerButton = (ImageButton)rootView.findViewById(R.id.play_button);
-		mPlayerButton.setOnClickListener(mOnClickListener);
-		return rootView;
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        mPlayerView = (PlayerTextureView)rootView.findViewById(R.id.player_view);
+        mPlayerView.setAspectRatio(640 / 480.f);
+        mPlayerButton = (ImageButton)rootView.findViewById(R.id.play_button);
+        mPlayerButton.setOnClickListener(mOnClickListener);
+        return rootView;
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		if (DEBUG) Log.v(TAG, "onResume:");
-		mPlayerView.onResume();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (DEBUG) Log.v(TAG, "onResume:");
+        mPlayerView.onResume();
+    }
 
-	@Override
-	public void onPause() {
-		if (DEBUG) Log.v(TAG, "onPause:");
-		stopPlay();
-		mPlayerView.onPause();
-		super.onPause();
-	}
+    @Override
+    public void onPause() {
+        if (DEBUG) Log.v(TAG, "onPause:");
+        stopPlay();
+        mPlayerView.onPause();
+        super.onPause();
+    }
 
-	/**
-	 * method when touch record button
-	 */
-	private final OnClickListener mOnClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			switch (view.getId()) {
-			case R.id.play_button:
-				if (mPlayer == null)
-					startPlay();
-				else
-					stopPlay();
-				break;
-			}
-		}
-	};
+    /**
+     * method when touch record button
+     */
+    private final OnClickListener mOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (view.getId() == R.id.play_button) {
+                if (mPlayer == null)
+                    startPlay();
+                else
+                    stopPlay();
+            }
+        }
+    };
 
-	/**
-	 * start playing
-	 */
-	private void startPlay() {
-		if (DEBUG) Log.v(TAG, "startRecording:");
-		final Activity activity = getActivity();
-		try {
-			final File dir = activity.getFilesDir();
-			dir.mkdirs();
-			final File path = new File(dir, "easter_egg_nexus9_small.mp4");
-			prepareSampleMovie(path);
-			mPlayerButton.setColorFilter(0x7fff0000);	// turn red
+    /**
+     * start playing
+     */
+    private void startPlay() {
+        if (DEBUG) Log.v(TAG, "startRecording:");
+        final Activity activity = getActivity();
+        try {
+            assert activity != null;
+            final File dir = activity.getFilesDir();
+            dir.mkdirs();
+            final File path = new File(dir, "av_h264_30fps_4040kbps_aac_178kbps.mp4");
+            prepareSampleMovie(path);
+            mPlayerButton.setColorFilter(0x7fff0000);	// turn red
+            Context context = getContext();
 //			mPlayer = new MediaVideoPlayer(mPlayerView.getSurface(), mIFrameCallback);
-			mPlayer = new MediaMoviePlayer(mPlayerView.getSurface(), mIFrameCallback, true);
-			mPlayer.prepare(path.toString());
-		} catch (IOException e) {
-			Log.e(TAG, "startPlay:", e);
-		}
-	}
+            mPlayer = new MediaMoviePlayer(mPlayerView.getSurface(), mIFrameCallback, true, context);
+            mPlayer.prepare(path.toString());
+        } catch (IOException e) {
+            Log.e(TAG, "startPlay:", e);
+        }
+    }
 
-	/**
-	 * request stop playing
-	 */
-	private void stopPlay() {
-		if (DEBUG) Log.v(TAG, "stopRecording:mPlayer=" + mPlayer);
-		mPlayerButton.setColorFilter(0);	// return to default color
-		if (mPlayer != null) {
-			mPlayer.release();
-			mPlayer = null;
-			// you should not wait here
-		}
-	}
+    /**
+     * request stop playing
+     */
+    private void stopPlay() {
+        if (DEBUG) Log.v(TAG, "stopRecording:mPlayer=" + mPlayer);
+        mPlayerButton.setColorFilter(0);	// return to default color
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
+            // you should not wait here
+        }
+    }
 
-	/**
-	 * callback methods from decoder
-	 */
-	private final IFrameCallback mIFrameCallback = new IFrameCallback() {
-		@Override
-		public void onPrepared() {
-			final float aspect = mPlayer.getWidth() / (float)mPlayer.getHeight();
-			final Activity activity = getActivity();
-			if ((activity != null) && !activity.isFinishing())
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mPlayerView.setAspectRatio(aspect);
-					}
-				});
-			mPlayer.play();
-		}
+    /**
+     * callback methods from decoder
+     */
+    private final IFrameCallback mIFrameCallback = new IFrameCallback() {
+        @Override
+        public void onPrepared() {
+            final float aspect = mPlayer.getWidth() / (float)mPlayer.getHeight();
+            final Activity activity = getActivity();
+            if ((activity != null) && !activity.isFinishing())
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayerView.setAspectRatio(aspect);
+                    }
+                });
+            mPlayer.play();
+        }
 
-		@Override
-		public void onFinished() {
-			mPlayer = null;
-			final Activity activity = getActivity();
-			if ((activity != null) && !activity.isFinishing())
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mPlayerButton.setColorFilter(0);	// return to default color
-					}
-				});
-		}
+        @Override
+        public void onFinished() {
+            mPlayer = null;
+            final Activity activity = getActivity();
+            if ((activity != null) && !activity.isFinishing())
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPlayerButton.setColorFilter(0);	// return to default color
+                    }
+                });
+        }
 
-		@Override
-		public boolean onFrameAvailable(long presentationTimeUs) {
-			return false;
-		}
-	};
+        @Override
+        public boolean onFrameAvailable(long presentationTimeUs) {
+            return false;
+        }
+    };
 
-	private final void prepareSampleMovie(File path) throws IOException {
-		final Activity activity = getActivity();
-		if (!path.exists()) {
-			if (DEBUG) Log.i(TAG, "copy sample movie file from res/raw to app private storage");
-			final BufferedInputStream in = new BufferedInputStream(activity.getResources().openRawResource(R.raw.easter_egg_nexus9_small));
-			final BufferedOutputStream out = new BufferedOutputStream(activity.openFileOutput(path.getName(), Context.MODE_PRIVATE));
-			byte[] buf = new byte[8192];
-			int size = in.read(buf);
-			while (size > 0) {
-				out.write(buf, 0, size);
-				size = in.read(buf);
-			}
-			in.close();
-			out.flush();
-			out.close();
-		}
-	}
+    private final void prepareSampleMovie(File path) throws IOException {
+        final Activity activity = getActivity();
+        if (!path.exists()) {
+            if (DEBUG) Log.i(TAG, "copy sample movie file from res/raw to app private storage");
+            assert activity != null;
+            final BufferedInputStream in =
+                    new BufferedInputStream(activity.getResources().openRawResource(R.raw.av_h264_30fps_4040kbps_aac_178kbps));
+            final BufferedOutputStream out =
+                    new BufferedOutputStream(activity.openFileOutput(path.getName(), Context.MODE_PRIVATE));
+            byte[] buf = new byte[8192];
+            int size = in.read(buf);
+            while (size > 0) {
+                out.write(buf, 0, size);
+                size = in.read(buf);
+            }
+            in.close();
+            out.flush();
+            out.close();
+        }
+    }
 }

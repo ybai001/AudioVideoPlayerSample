@@ -4,13 +4,13 @@ package com.serenegiant.media;
  * callback interface
  */
 public interface IFrameCallback {
-	/**
-	 * called when preparing finshed
-	 */
-	void onPrepared();
-	/**
-	 * called when playing finished
-	 */
+    /**
+     * called when preparing finshed
+     */
+    void onPrepared();
+    /**
+     * called when playing finished
+     */
     void onFinished();
     /**
      * called every frame before time adjusting
