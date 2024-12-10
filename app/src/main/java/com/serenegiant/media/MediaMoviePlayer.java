@@ -22,12 +22,16 @@ package com.serenegiant.media;
  * All files in the folder are under this Apache License, Version 2.0.
 */
 
+import static android.view.Display.DEFAULT_DISPLAY;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -41,6 +45,7 @@ import androidx.annotation.NonNull;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.Surface;
 
 public class MediaMoviePlayer {
@@ -757,10 +762,33 @@ public class MediaMoviePlayer {
         if (DEBUG) {
             Log.v(TAG, "internalStartVideo:");
         }
+
+        boolean supportsDolbyVision = false;
+        DisplayManager displayManager =
+                (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
+        Display display =
+                (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (display != null && display.isHdr()) {
+                int[] supportedHdrTypes = display.getHdrCapabilities().getSupportedHdrTypes();
+                for (int hdrType : supportedHdrTypes) {
+                    if (hdrType == Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION) {
+                        supportsDolbyVision = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         MediaCodec codec = null;
         if (trackIndex >= 0) {
             final MediaFormat format = media_extractor.getTrackFormat(trackIndex);
             final String mime = format.getString(MediaFormat.KEY_MIME);
+            if (Objects.equals(mime, "video/dolby-vision")) {
+                if (!supportsDolbyVision) {
+                    Log.w(TAG, "Current display doesn't support Dolby Vision.");
+                }
+            }
             try {
                 assert mime != null;
                 codec = MediaCodec.createDecoderByType(mime);
