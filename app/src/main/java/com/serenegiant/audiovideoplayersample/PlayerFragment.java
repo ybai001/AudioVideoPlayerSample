@@ -29,7 +29,7 @@ import java.io.IOException;
 
 import com.serenegiant.media.MediaMoviePlayer;
 import com.serenegiant.media.IFrameCallback;
-import com.serenegiant.widget.PlayerTextureView;
+import com.serenegiant.widget.PlayerSurfaceView;
 
 import android.app.Activity;
 import android.content.Context;
@@ -50,7 +50,7 @@ public class PlayerFragment extends Fragment {
     /**
      * for camera preview display
      */
-    private PlayerTextureView mPlayerView;	//	private PlayerGLView mPlayerView;
+    private PlayerSurfaceView mPlayerView;	//	private PlayerGLView mPlayerView;
     /**
      * button for start/stop recording
      */
@@ -67,9 +67,9 @@ public class PlayerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        mPlayerView = (PlayerTextureView)rootView.findViewById(R.id.player_view);
+        mPlayerView = rootView.findViewById(R.id.player_view);
         mPlayerView.setAspectRatio(640 / 480.f);
-        mPlayerButton = (ImageButton)rootView.findViewById(R.id.play_button);
+        mPlayerButton = rootView.findViewById(R.id.play_button);
         mPlayerButton.setOnClickListener(mOnClickListener);
         return rootView;
     }
@@ -114,12 +114,13 @@ public class PlayerFragment extends Fragment {
             assert activity != null;
             final File dir = activity.getFilesDir();
             dir.mkdirs();
-            final File path = new File(dir, "av_h264_30fps_4040kbps_aac_178kbps.mp4");
+            //final File path = new File(dir, "av_h264_30fps_4040kbps_aac_178kbps.mp4");
+            final File path = new File(dir, "p84_fhd_30_sz.mp4");
             prepareSampleMovie(path);
             mPlayerButton.setColorFilter(0x7fff0000);	// turn red
             Context context = getContext();
 //			mPlayer = new MediaVideoPlayer(mPlayerView.getSurface(), mIFrameCallback);
-            mPlayer = new MediaMoviePlayer(mPlayerView.getSurface(), mIFrameCallback, true, context);
+            mPlayer = new MediaMoviePlayer(mPlayerView.getHolder().getSurface(), mIFrameCallback, true, context);
             mPlayer.prepare(path.toString());
         } catch (IOException e) {
             Log.e(TAG, "startPlay:", e);
@@ -182,7 +183,7 @@ public class PlayerFragment extends Fragment {
             if (DEBUG) Log.i(TAG, "copy sample movie file from res/raw to app private storage");
             assert activity != null;
             final BufferedInputStream in =
-                    new BufferedInputStream(activity.getResources().openRawResource(R.raw.av_h264_30fps_4040kbps_aac_178kbps));
+                    new BufferedInputStream(activity.getResources().openRawResource(R.raw.p84_fhd_30_sz));
             final BufferedOutputStream out =
                     new BufferedOutputStream(activity.openFileOutput(path.getName(), Context.MODE_PRIVATE));
             byte[] buf = new byte[8192];
