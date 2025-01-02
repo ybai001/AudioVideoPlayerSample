@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.hardware.display.DisplayManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -57,6 +58,7 @@ public class MediaMoviePlayer {
     private final boolean mAudioEnabled;
     private final Context mContext;
     private LoudnessCodecController mLcc = null;
+    private Display mDisplay;
 
     public MediaMoviePlayer(@NonNull final Surface outputSurface,
         @NonNull final IFrameCallback callback, final boolean audio_enable, final Context context) {
@@ -766,11 +768,11 @@ public class MediaMoviePlayer {
         boolean supportsDolbyVision = false;
         DisplayManager displayManager =
                 (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-        Display display =
+        mDisplay =
                 (displayManager != null) ? displayManager.getDisplay(DEFAULT_DISPLAY) : null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (display != null && display.isHdr()) {
-                int[] supportedHdrTypes = display.getHdrCapabilities().getSupportedHdrTypes();
+            if (mDisplay != null && mDisplay.isHdr()) {
+                int[] supportedHdrTypes = mDisplay.getHdrCapabilities().getSupportedHdrTypes();
                 for (int hdrType : supportedHdrTypes) {
                     if (hdrType == Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION) {
                         supportsDolbyVision = true;
@@ -972,6 +974,12 @@ public class MediaMoviePlayer {
                         if (!frameCallback.onFrameAvailable(mVideoBufferInfo.presentationTimeUs))
                             mVideoStartTime = adjustPresentationTime(mVideoSync, mVideoStartTime, mVideoBufferInfo.presentationTimeUs);
                     }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    assert mDisplay != null;
+                    float ratio = mDisplay.getHdrSdrRatio();
+                    Log.i(TAG, "Current HDR/SDR ratio is " + ratio);
+
                 }
                 mVideoMediaCodec.releaseOutputBuffer(decoderStatus, doRender);
                 if ((mVideoBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {

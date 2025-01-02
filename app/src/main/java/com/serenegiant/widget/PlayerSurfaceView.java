@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -109,7 +110,7 @@ public class PlayerSurfaceView extends SurfaceView implements SurfaceHolder.Call
             // stay size if the difference of calculated aspect ratio is small enough from specific value
             if (Math.abs(aspectDiff) > 0.01) {
                 if (aspectDiff > 0) {
-                    // adjust heght from width
+                    // adjust height from width
                     initialHeight = (int) (initialWidth / mRequestedAspect);
                 } else {
                     // adjust width from height
@@ -119,6 +120,9 @@ public class PlayerSurfaceView extends SurfaceView implements SurfaceHolder.Call
                 initialHeight += vertPadding;
                 widthMeasureSpec = MeasureSpec.makeMeasureSpec(initialWidth, MeasureSpec.EXACTLY);
                 heightMeasureSpec = MeasureSpec.makeMeasureSpec(initialHeight, MeasureSpec.EXACTLY);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                super.setDesiredHdrHeadroom(2.0F);
             }
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

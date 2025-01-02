@@ -34,6 +34,9 @@ import com.serenegiant.widget.PlayerSurfaceView;
 import android.app.Activity;
 import android.content.Context;
 import androidx.fragment.app.Fragment;
+
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -115,9 +118,15 @@ public class PlayerFragment extends Fragment {
             final File dir = activity.getFilesDir();
             dir.mkdirs();
             //final File path = new File(dir, "av_h264_30fps_4040kbps_aac_178kbps.mp4");
-            final File path = new File(dir, "p84_fhd_30_sz.mp4");
+            final File path = new File(dir, "hdr10-720p.mp4");
             prepareSampleMovie(path);
             mPlayerButton.setColorFilter(0x7fff0000);	// turn red
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getWindow().setColorMode(ActivityInfo.COLOR_MODE_HDR);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    requireActivity().getWindow().setDesiredHdrHeadroom(2.0F);
+                }
+            }
             Context context = getContext();
 //			mPlayer = new MediaVideoPlayer(mPlayerView.getSurface(), mIFrameCallback);
             mPlayer = new MediaMoviePlayer(mPlayerView.getHolder().getSurface(), mIFrameCallback, true, context);
@@ -183,7 +192,7 @@ public class PlayerFragment extends Fragment {
             if (DEBUG) Log.i(TAG, "copy sample movie file from res/raw to app private storage");
             assert activity != null;
             final BufferedInputStream in =
-                    new BufferedInputStream(activity.getResources().openRawResource(R.raw.p84_fhd_30_sz));
+                    new BufferedInputStream(activity.getResources().openRawResource(R.raw.hdr10_720p));
             final BufferedOutputStream out =
                     new BufferedOutputStream(activity.openFileOutput(path.getName(), Context.MODE_PRIVATE));
             byte[] buf = new byte[8192];
