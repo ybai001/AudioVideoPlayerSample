@@ -34,14 +34,22 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.serenegiant.audiovideoplayersample.PlayerFragment" >
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/sdr_image"
+        android:src="@drawable/card" />
+
     <!--com.serenegiant.widget.PlayerTextureView -->
+
     <com.serenegiant.widget.PlayerSurfaceView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp" />
+        android:layout_below="@id/imageView"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="20dp" />
 
     <ImageButton
         android:id="@+id/play_button"
@@ -51,6 +59,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:background="@null"
+        android:contentDescription="@string/play"
         android:scaleType="fitXY"
         android:src="@android:drawable/ic_media_play" />
 

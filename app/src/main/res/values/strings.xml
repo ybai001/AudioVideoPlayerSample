@@ -4,5 +4,7 @@
     <string name="app_name">AudioVideoPlayerSample</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="sdr_image">SDR image</string>
+    <string name="play">Play</string>
 
 </resources>
